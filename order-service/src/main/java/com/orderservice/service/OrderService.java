@@ -8,11 +8,12 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.orderservice.dto.OrderItemRequest;
+import com.orderservice.dto.*;
 import com.orderservice.entity.*;
 import com.orderservice.exception.OrderNotFoundException;
 import com.orderservice.mq.model.OrderCreatedEvent;
 import com.orderservice.repository.OrderRepository;
+import com.orderservice.service.criteria.OrderSpecification;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class OrderService {
 	private String routingKey;
 
 	private final OrderRepository orderRepository;
+	
 	private final RabbitTemplate rabbitTemplate;
 
 	@Transactional
@@ -82,4 +84,9 @@ public class OrderService {
 	public Order getOrderById(Long id) {
 		return orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(id));
 	}
+
+	public List<Order> search(SearchRequest request) {
+		return orderRepository.findAll(OrderSpecification.withCriteria(request));
+	}
+
 }
